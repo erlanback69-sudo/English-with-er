@@ -48,7 +48,6 @@
             border-radius: 8px;
             cursor: pointer;
         }
-        .reset-btn:hover { border-color: var(--error); color: var(--error); }
         .progress-wrap {
             background: #e5e7eb;
             border-radius: 999px;
@@ -86,7 +85,6 @@
             font-size: 14px;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-            transition: 0.2s;
         }
         .tab-btn.active { background: var(--primary); color: white; }
         .section { display: none; }
@@ -109,9 +107,7 @@
             text-align: left;
             font-size: 15px;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .option-btn:hover:not(:disabled) { border-color: var(--primary); }
         .option-btn.correct { background: #d1fae5; border-color: var(--success); color: #065f46; }
         .option-btn.wrong { background: #fee2e2; border-color: var(--error); color: #991b1b; }
         .feedback { margin-top: 14px; font-weight: 500; font-size: 14px; line-height: 1.4; }
@@ -126,10 +122,8 @@
             font-weight: 600;
             cursor: pointer;
         }
-        .btn-main:hover { background: var(--primary-hover); }
         .btn-success { background: var(--success); }
         .btn-outline { background: white; color: var(--text); border: 2px solid #e5e7eb; }
-
         .topic-select {
             width: 100%;
             padding: 12px;
@@ -163,7 +157,6 @@
         .hint { font-size: 12px; color: #9ca3af; margin-top: 18px; }
         .card-actions { display: flex; gap: 10px; }
         .card-actions .btn-main { margin-top: 0; flex: 1; }
-
         .topic-accordion {
             background: var(--card);
             border-radius: 14px;
@@ -213,7 +206,7 @@
     <header>
         <div class="header-top">
             <h1>🇬🇧 English ОГЭ Тренажёр</h1>
-            <button class="reset-btn" onclick="resetProgress()">Сбросить прогресс</button>
+            <button class="reset-btn" onclick="resetProgress()">Сбросить</button>
         </div>
         <div class="stats">
             <span id="progress-text">Грамматика: 0%</span>
@@ -263,8 +256,12 @@
     </div>
 
     <div id="vocab" class="section"><div id="vocab-list"></div></div>
+    <div id="rules" class="section"><div id="rules-list"></div></div>
+</div>
+
+<script>
 const questions = [
-{ text: "She ___ to London last summer.", options: ["go", "went", "has gone"], correct: 1, explanation: "Есть маркер прошлого 'last summer' — нужен Past Simple." },
+    { text: "She ___ to London last summer.", options: ["go", "went", "has gone"], correct: 1, explanation: "Есть маркер прошлого 'last summer' — нужен Past Simple." },
 { text: "This book is ___ than the film.", options: ["interesting", "more interesting", "most interesting"], correct: 1, explanation: "Длинное прилагательное при сравнении (than) требует 'more'." },
 { text: "I ___ my homework yet.", options: ["haven't finished", "didn't finish", "don't finish"], correct: 0, explanation: "Слово 'yet' (ещё не) указывает на Present Perfect." },
 { text: "Look! The children ___ football in the yard.", options: ["play", "are playing", "played"], correct: 1, explanation: "Действие происходит прямо сейчас ('Look!') — Present Continuous." },
@@ -286,41 +283,46 @@ const questions = [
 { text: "Look at those black clouds! It ___ rain soon.", options: ["will", "is going to", "goes to"], correct: 1, explanation: "Прогноз по очевидным признакам (тучи) — 'be going to'." }
 ];
 const rulesData = [
-{ title: "1. Present Simple vs Present Continuous", body: "Present Simple — регулярные действия, привычки, расписание (always, usually, often, every day). Добавляем -s/-es для he/she/it.
-Пример: She goes to school every day.Present Continuous — действие прямо сейчас (now, at the moment, Look!). Формула: am/is/are + V-ing.
-Пример: Look! She is running now." },
-{ title: "2. Past Simple vs Past Continuous", body: "Past Simple — завершилось в прошлом в точное время (yesterday, in 2020, ago). Форма V2 / -ed.
-Пример: I watched this movie yesterday.Past Continuous — длилось в момент в прошлом (at 5 pm yesterday, when, while). Формула: was/were + V-ing.
-Пример: I was watching TV when you called." },
-{ title: "3. Present Perfect vs Past Perfect", body: "Present Perfect — важен результат сейчас, время не указано (already, just, yet, ever, never, since, for). Формула: have/has + V3.
-Пример: I have already watched this movie.Past Perfect — случилось раньше другого действия в прошлом (by 5 pm, before). Формула: had + V3.
-Пример: When I arrived, the train had already left." },
-{ title: "4. Future Simple vs to be going to", body: "Future Simple (will + V) — спонтанные решения, обещания, предсказания (tomorrow, next week, I think).
-Пример: It’s cold. I will close the window.To be going to + V — планы и намерения или прогноз по фактам.
-Пример: Look at those dark clouds! It is going to rain." },
-{ title: "5. Страдательный залог (Passive Voice)", body: "Действие совершается над предметом: to be + V3.
-• Present (am/is/are + V3): English is spoken everywhere.
-• Past (was/were + V3): This book was written in 1890.
-• Future (will be + V3): The work will be finished tomorrow." },
-{ title: "6. Условные предложения (Conditionals 0, 1, 2) и I wish", body: "Conditional 0 (факты): If + Present Simple, Present Simple. (If you heat ice, it melts.)
-Conditional 1 (реальное будущее): If + Present Simple, will + V. (If it rains, we will stay home.)
-Conditional 2 (нереальное настоящее): If + Past Simple (were для всех лиц), would + V. (If I were you, I would go.)
-I wish (сожаление): I wish + Past Simple. (I wish I knew French.)" },
-{ title: "7. Косвенная речь (Reported Speech)", body: "После said / told время сдвигается назад: Present Simple → Past Simple, Present Continuous → Past Continuous, Past Simple / Present Perfect → Past Perfect, will → would, can → could, must → had to.
-Слова-маркеры: now → then, today → that day, yesterday → the day before, tomorrow → the next day." },
-{ title: "8. Степени сравнения прилагательных", body: "Короткие: -er / the -est (fast → faster → the fastest).
-Длинные: more / the most (interesting → more interesting → the most interesting).
-Исключения ОГЭ: good → better → the best; bad → worse → the worst; little → less → the least; many/much → more → the most; far → farther/further → the farthest/furthest." },
-{ title: "9. Модальные глаголы", body: "Глагол после них идёт без to (кроме have to):
-• can / could — уметь, мочь;
-• must — должен; mustn't — строго запрещено;
-• have to — вынужден; don't have to — не обязательно;
-• should — следует (совет);
-• may / might — разрешение или вероятность." },
-{ title: "10. Существительные, местоимения и числительные", body: "Множ. число (исключения): man → men, woman → women, child → children, tooth → teeth, foot → feet, mouse → mice, person → people, sheep → sheep, deer → deer, fish → fish.
-Исчисляемые / неисчисляемые: many, few / much, little.
-Местоимения: some (утверждения), any (вопросы и отрицания); возвратные (myself, yourself, himself, herself, itself, ourselves, yourselves, themselves).
-Порядковые числительные: the first, the second, the third, the fifth, the twelfth, the twentieth." }
+{
+title: "1. Present Simple vs Present Continuous",
+body: <p><b>Present Simple</b> — регулярные действия, привычки, расписание (always, usually, often, every day). Добавляем <b>-s/-es</b> для he/she/it.<br><i>Пример: She goes to school every day.</i></p><p><b>Present Continuous</b> — действие прямо сейчас (now, at the moment, Look!). Формула: <b>am/is/are + V-ing</b>.<br><i>Пример: Look! She is running now.</i></p>
+},
+{
+title: "2. Past Simple vs Past Continuous",
+body: <p><b>Past Simple</b> — завершилось в прошлом в точное время (yesterday, in 2020, ago). Форма <b>V2 / -ed</b>.<br><i>Пример: I watched this movie yesterday.</i></p><p><b>Past Continuous</b> — длилось в момент в прошлом (at 5 pm yesterday, when, while). Формула: <b>was/were + V-ing</b>.<br><i>Пример: I was watching TV when you called.</i></p>
+},
+{
+title: "3. Present Perfect vs Past Perfect",
+body: <p><b>Present Perfect</b> — важен результат сейчас, время не указано (already, just, yet, ever, never, since, for). Формула: <b>have/has + V3</b>.<br><i>Пример: I have already watched this movie.</i></p><p><b>Past Perfect</b> — случилось раньше другого действия в прошлом (by 5 pm, before). Формула: <b>had + V3</b>.<br><i>Пример: When I arrived, the train had already left.</i></p>
+},
+{
+title: "4. Future Simple vs to be going to",
+body: <p><b>Future Simple (will + V)</b> — спонтанные решения, обещания, предсказания (tomorrow, next week, I think).<br><i>Пример: It’s cold. I will close the window.</i></p><p><b>To be going to + V</b> — планы и намерения или прогноз по фактам.<br><i>Пример: Look at those dark clouds! It is going to rain.</i></p>
+},
+{
+title: "5. Страдательный залог (Passive Voice)",
+body: <p>Действие совершается над предметом: <b>to be + V3</b>.<br>• <b>Present (am/is/are + V3):</b> <i>English is spoken everywhere.</i><br>• <b>Past (was/were + V3):</b> <i>This book was written in 1890.</i><br>• <b>Future (will be + V3):</b> <i>The work will be finished tomorrow.</i></p>
+},
+{
+title: "6. Условные предложения (Conditionals 0, 1, 2) и I wish",
+body: <p><b>Conditional 0 (факты):</b> If + Present Simple, Present Simple. <i>(If you heat ice, it melts.)</i><br><b>Conditional 1 (реальное будущее):</b> If + Present Simple, will + V. <i>(If it rains, we will stay home.)</i><br><b>Conditional 2 (нереальное настоящее):</b> If + Past Simple (<b>were</b> для всех лиц), would + V. <i>(If I were you, I would go.)</i><br><b>I wish (сожаление):</b> I wish + Past Simple. <i>(I wish I knew French.)</i></p>
+},
+{
+title: "7. Косвенная речь (Reported Speech)",
+body: <p>После <i>said / told</i> время сдвигается назад: Present Simple → <b>Past Simple</b>, Present Continuous → <b>Past Continuous</b>, Past Simple / Present Perfect → <b>Past Perfect</b>, will → <b>would</b>, can → <b>could</b>, must → <b>had to</b>.<br>Слова-маркеры: <i>now → then, today → that day, yesterday → the day before, tomorrow → the next day</i>.</p>
+},
+{
+title: "8. Степени сравнения прилагательных",
+body: <p>Короткие: <b>-er / the -est</b> (fast → faster → the fastest).<br>Длинные: <b>more / the most</b> (interesting → more interesting → the most interesting).<br><b>Исключения ОГЭ:</b> good → <b>better → the best</b>; bad → <b>worse → the worst</b>; little → <b>less → the least</b>; many/much → <b>more → the most</b>; far → <b>farther/further → the farthest/furthest</b>.</p>
+},
+{
+title: "9. Модальные глаголы",
+body: <p>Глагол после них идёт без <b>to</b> (кроме <i>have to</i>):<br>• <b>can / could</b> — уметь, мочь;<br>• <b>must</b> — должен; <b>mustn't</b> — строго запрещено;<br>• <b>have to</b> — вынужден; <b>don't have to</b> — не обязательно;<br>• <b>should</b> — следует (совет);<br>• <b>may / might</b> — разрешение или вероятность.</p>
+},
+{
+title: "10. Существительные, местоимения и числительные",
+body: <p><b>Множ. число (исключения):</b> man → <b>men</b>, woman → <b>women</b>, child → <b>children</b>, tooth → <b>teeth</b>, foot → <b>feet</b>, mouse → <b>mice</b>, person → <b>people</b>, sheep → <b>sheep</b>, deer → <b>deer</b>, fish → <b>fish</b>.<br><b>Исчисляемые / неисчисляемые:</b> many, few / much, little.<br><b>Местоимения:</b> <b>some</b> (утверждения), <b>any</b> (вопросы и отрицания); возвратные (<i>myself, yourself, himself, herself, itself, ourselves, yourselves, themselves</i>).<br><b>Порядковые числительные:</b> the first, the second, the third, the fifth, the twelfth, the twentieth.</p>
+}
 ];
 const rawVocab = [
 {
@@ -344,7 +346,7 @@ items: [
 {
 topic: "Досуг, увлечения, спорт и ЗОЖ",
 items: [
-"Leisure / Spare time|Досуг / свободное время","Hobby / Pastime|Хобби / увлечение","To be keen on|Сильно увлекаться","To be fond of|Любить / увлекаться","To be interested in|Интересоваться","To take up a hobby|Начать новое хобби","To give up|Бросить (привычку)","Entertainment|Развлечение","To entertain|Развлекать","To relax / To unwind|Расслабляться / отдыхать","To hang out with friends|Проводить время с друзьями","To go out|Выходить в свет / гулять","Couch potato|Домосед / лежебока","Board games|Настольные игры","Chess|Шахматы","Jigsaw puzzle|Пазл","Knitting|Вязание","Sewing|Шитьё","Embroidery|Вышивание","Pottery|Гончарное дело","Painting|Живопись","Drawing|Рисование","Photography|Фотография","Gardening|Садоводство","Collecting stamps / coins|Коллекционирование марок / монет","Cooking / Baking|Кулинария / выпечка","Reading|Чтение","Fiction|Художественная литература","Non-fiction|Документальная литература","Detective story|Детектив","Science fiction (Sci-fi)|Научная фантастика","Adventure story|Приключенческий рассказ","Plot|Сюжет","Main character|Главный герой","Bestseller|Бестселлер","Exhibition|Выставка","Art gallery|Художественная галерея","Museum|Музей","Theatre|Театр","Performance|Спектакль / представление","Stage|Сцена","Audience|Зрители / публика","Applause|Аплодисменты","Cinema / Movie theater|Кинотеатр","Comedy|Комедия","Horror film|Фильм ужасов","Action movie|Боевик","Cartoon|Мультфильм","Documentary|Документальный фильм","Cast|Актёрский состав","Director|Режиссёр","Screen|Экран","Subtitles|Субтитры","Special effects|Спецэффекты","Concert|Концерт","Musical instrument|Музыкальный инструмент","To play the guitar / piano|Играть на гитаре / пианино","Band / Orchestra|Группа / оркестр","Lyrics|Текст песни","Catchy tune|Запоминающаяся мелодия","Healthy lifestyle|Здоровый образ жизни","To keep fit|Поддерживать форму","To work out|Тренироваться в зале","Physical exercise|Физические упражнения","Balanced diet|Сбалансированное питание","Junk food|Вредная еда / фастфуд","Vitamins|Витамины","Bad habits|Вредные привычки","Smoking|Курение","To get enough sleep|Высыпаться","Insomnia|Бессонница","Stress|Стресс","To avoid stress|Избегать стресса","Health|Здоровье","Healthy|Здоровый","Illness / Disease|Болезнь / заболевание","To catch a cold|Простудиться","Flu|Грипп","Fever / High temperature|Жар / температура","Headache|Головная боль","Toothache|Зубная боль","Stomachache|Боль в животе","Sore throat|Боль в горле","Cough|Кашель","Runny nose|Насморк","Injury|Травма","To hurt / To ache|Болеть","To recover|Выздоравливать","Treatment|Лечение","Medicine|Лекарство / медицина","Pill / Tablet|Таблетка","Prescription|Рецепт от врача","To examine a patient|Осматривать пациента","Ambulance|Скорая помощь","Hospital|Больница","Chemist's / Pharmacy|Аптека","First aid|Первая помощь","Sport|Спорт","Athlete / Sportsman|Спортсмен","Team sports|Командные виды спорта","Individual sports|Индивидуальные виды спорта","Extreme sports|Экстремальные виды спорта","Athletics|Лёгкая атлетика","Gymnastics|Гимнастика","Figure skating|Фигурное катание","Skiing|Лыжный спорт","Snowboarding|Сноубординг","Swimming|Плавание","Cycling|Велоспорт","Jogging|Бег трусцой","Wrestling|Борьба","Boxing|Бокс","Martial arts|Боевые искусства","Fencing|Фехтование","Weightlifting|Тяжёлая атлетика","Archery|Стрельба из лука","Coach / Trainer|Тренер","Referee / Umpire|Судья в спорте","Spectator / Fan|Зритель / болельщик","Team|Команда","Opponent / Rival|Соперник","Champion|Чемпион","Championship|Чемпионат","Tournament|Турнир","Competition / Contest|Соревнование","Olympic Games|Олимпийские игры","To compete|Соревноваться","To train / To practice|Тренироваться","To warm up|Разминаться","To win|Побеждать","Victory|Победа","To lose|Проигрывать","Defeat|Поражение","Draw / Tie|Ничья","Score|Счёт в игре","To score a goal / point|Забить гол / набрать очко","Record|Рекорд","To set a record|Установить рекорд"
+"Leisure / Spare time|Досуг / свободное время","Hobby / Pastime|Хобби / увлечение","To be keen on|Сильно увлекаться","To be fond of|Любить / увлекаться","To be interested in|Интересоваться","To take up a hobby|Начать новое хобби","To give up|Бросить (привычку)","Entertainment|Развлечение","To entertain|Развлекать","To relax / To unwind|Расслабляться / отдыхать","To hang out with friends|Проводить время с друзьями","To go out|Выходить в свет / гулять","Couch potato|Домосед / лежебока","Board games|Настольные игры","Chess|Шахматы","Jigsaw puzzle|Пазл","Knitting|Вязание","Sewing|Шитьё","Embroidery|Вышивание","Pottery|Гончарное дело","Painting|Живопись","Drawing|Рисование","Photography|Фотография","Gardening|Садоводство","Collecting stamps / coins|Коллекционирование марок / монет","Cooking / Baking|Кулинария / выпечка","Reading|Чтение","Fiction|Художественная литература","Non-fiction|Документальная литература","Detective story|Детектив","Science fiction (Sci-fi)|Научная фантастика","Adventure story|Приключенческий рассказ","Plot|Сюжет","Main character|Главный герой","Bestseller|Бестселлер","Exhibition|Выставка","Art gallery|Художественная галерея","Museum|Музей","Theatre|Театр","Performance|Спектакль / представление","Stage|Сцена","Audience|Зрители / публика","Applause|Аплодисменты","Cinema / Movie theater|Кинотеатр","Comedy|Комедия","Horror film|Фильм ужасов","Action movie|Боевик","Cartoon|Мультфильм","Documentary|Документальный фильм","Cast|Актёрский состав","Director|Режиссёр","Screen|Экран","Subtitles|Субтитры","Special effects|Спецэффекты","Concert|Концерт","Musical instrument|Музыкальный инструмент","To play the guitar / piano|Играть на гитаре / пианино","Band / Orchestra|Группа / оркестр","Lyrics|Текст песни","Catchy tune|Запоминающаяся мелодия","Healthy lifestyle|Здоровый образ жизни","To keep fit|Поддерживать форму","To work out|Тренироваться в зале","Physical exercise|Физические упражнения","Balanced diet|Сбалансированное питание","Junk food|Вредная еда / фастфуд","Vitamins|Витамины","Bad habits|Вредные привычки","Smoking|Курение","To get enough sleep|Высыпаться","Insomnia|Бессонница","Stress|Стресс","To avoid stress|Избегать стресса","Health|Здоровье","Healthy|Здоровый","Illness / Disease|Болезнь / заболевание","To catch a cold|Простудиться","Flu|Грипп","Fever / High temperature|Жар / температура","Headache|Головная боль","Toothache|Зубная боль","Stomachache|Боль в животе","Sore throat|Боль в горле","Cough|Кашель","Runny nose|Насморк","Injury|Травма","To hurt / To ache|Болеть","To recover|Выздоравливать","Treatment|Лечение","Medicine|Лекарство / медицина","Pill / Tablet|Таблетка","Prescription|Рецепт от врача","To examine a patient|Осматривать пациента","Ambulance|Скорая помощь","Hospital|Больница","Chemist / Pharmacy|Аптека","First aid|Первая помощь","Sport|Спорт","Athlete / Sportsman|Спортсмен","Team sports|Командные виды спорта","Individual sports|Индивидуальные виды спорта","Extreme sports|Экстремальные виды спорта","Athletics|Лёгкая атлетика","Gymnastics|Гимнастика","Figure skating|Фигурное катание","Skiing|Лыжный спорт","Snowboarding|Сноубординг","Swimming|Плавание","Cycling|Велоспорт","Jogging|Бег трусцой","Wrestling|Борьба","Boxing|Бокс","Martial arts|Боевые искусства","Fencing|Фехтование","Weightlifting|Тяжёлая атлетика","Archery|Стрельба из лука","Coach / Trainer|Тренер","Referee / Umpire|Судья в спорте","Spectator / Fan|Зритель / болельщик","Team|Команда","Opponent / Rival|Соперник","Champion|Чемпион","Championship|Чемпионат","Tournament|Турнир","Competition / Contest|Соревнование","Olympic Games|Олимпийские игры","To compete|Соревноваться","To train / To practice|Тренироваться","To warm up|Разминаться","To win|Побеждать","Victory|Победа","To lose|Проигрывать","Defeat|Поражение","Draw / Tie|Ничья","Score|Счёт в игре","To score a goal / point|Забить гол / набрать очко","Record|Рекорд","To set a record|Установить рекорд"
 ]
 }
 ];
@@ -379,7 +381,7 @@ btn.classList.add('active');
 if (tabId === 'vocab') renderVocabList();
 }
 function resetProgress() {
-if (!confirm('Точно сбросить весь прогресс по грамматике и словам?')) return;
+if (!confirm('Точно сбросить весь прогресс?')) return;
 solvedQuestions = [];
 learnedWords = [];
 localStorage.removeItem('oge_solved_q');
