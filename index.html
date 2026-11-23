@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English ОГЭ | Тренажёр</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+        }
+        .container { max-width: 720px; width: 100%; }
+        header {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        h1 { margin: 0; font-size: 22px; color: var(--primary); }
+        .reset-btn {
+            background: none;
+            border: 1px solid #e5e7eb;
+            color: var(--muted);
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .reset-btn:hover { border-color: var(--error); color: var(--error); }
+        .progress-wrap {
+            background: #e5e7eb;
+            border-radius: 999px;
+            height: 10px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .progress-bar {
+            background: var(--success);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-bar.words-bar { background: var(--primary); }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 8px;
+        }
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .tab-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: var(--card);
+            color: var(--text);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            transition: 0.2s;
+        }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 14px;
+        }
+        .question-meta { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+        .question { font-size: 19px; font-weight: 600; margin-bottom: 18px; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn {
+            padding: 13px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option-btn:hover:not(:disabled) { border-color: var(--primary); }
+        .option-btn.correct { background: #d1fae5; border-color: var(--success); color: #065f46; }
+        .option-btn.wrong { background: #fee2e2; border-color: var(--error); color: #991b1b; }
+        .feedback { margin-top: 14px; font-weight: 500; font-size: 14px; line-height: 1.4; }
+        .btn-main {
+            margin-top: 14px;
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-main:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success); }
+        .btn-outline { background: white; color: var(--text); border: 2px solid #e5e7eb; }
+
+        .topic-select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            font-size: 15px;
+            margin-bottom: 14px;
+            background: white;
+        }
+        .flashcard {
+            text-align: center;
+            padding: 40px 20px;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+        .card-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #f3f4f6;
+            color: var(--muted);
+        }
+        .card-badge.learned { background: #d1fae5; color: #065f46; font-weight: 600; }
+        .word-topic-tag { font-size: 11px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
+        .word-en { font-size: 28px; font-weight: bold; color: var(--primary); }
+        .word-ru { font-size: 20px; color: var(--muted); margin-top: 12px; }
+        .hint { font-size: 12px; color: #9ca3af; margin-top: 18px; }
+        .card-actions { display: flex; gap: 10px; }
+        .card-actions .btn-main { margin-top: 0; flex: 1; }
+
+        .topic-accordion {
+            background: var(--card);
+            border-radius: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .topic-header {
+            padding: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .topic-count { font-size: 12px; color: var(--muted); font-weight: normal; margin-top: 3px; }
+        .topic-body { display: none; padding: 0 16px 16px 16px; border-top: 1px solid #f3f4f6; }
+        .topic-body.open { display: block; }
+        .word-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid #f3f4f6;
+            gap: 10px;
+        }
+        .word-row:last-child { border-bottom: none; }
+        .word-row-en { font-weight: 600; font-size: 15px; }
+        .word-row-ru { color: var(--muted); font-size: 13px; }
+        .status-toggle {
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .status-toggle.learned { background: #d1fae5; border-color: var(--success); color: #065f46; font-weight: 600; }
+        .rule-title { font-weight: bold; color: var(--primary); font-size: 17px; margin-bottom: 8px; }
+        .rule-card p { margin: 6px 0; line-height: 1.45; font-size: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="header-top">
+            <h1>🇬🇧 English ОГЭ Тренажёр</h1>
+            <button class="reset-btn" onclick="resetProgress()">Сбросить прогресс</button>
+        </div>
+        <div class="stats">
+            <span id="progress-text">Грамматика: 0%</span>
+            <span id="score-text">Верно: 0 из 0</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+
+        <div class="stats">
+            <span id="words-progress-text">Словарь: 0%</span>
+            <span id="words-score-text">Выучено: 0 из 0</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar words-bar" id="words-progress-bar"></div></div>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('quiz', this)">Тренажёр</button>
+        <button class="tab-btn" onclick="showTab('cards', this)">Карточки</button>
+        <button class="tab-btn" onclick="showTab('vocab', this)">Все слова</button>
+        <button class="tab-btn" onclick="showTab('rules', this)">Правила ОГЭ</button>
+    </div>
+
+    <div id="quiz" class="section active">
+        <div class="card">
+            <div class="question-meta" id="q-meta">Вопрос 1</div>
+            <div class="question" id="q-text">Загрузка вопроса...</div>
+            <div class="options" id="q-options"></div>
+            <div class="feedback" id="q-feedback"></div>
+            <button class="btn-main" id="next-btn" onclick="nextQuestion()" style="display:none;">Следующий вопрос →</button>
+        </div>
+    </div>
+
+    <div id="cards" class="section">
+        <select class="topic-select" id="card-topic-filter" onchange="changeCardTopic()">
+            <option value="all">Все темы (вперемешку)</option>
+        </select>
+        <div class="card flashcard" onclick="flipCard()">
+            <div class="card-badge" id="card-status-badge">Новое</div>
+            <div class="word-topic-tag" id="card-topic">Тема</div>
+            <div class="word-en" id="card-en">Word</div>
+            <div class="word-ru" id="card-ru" style="display:none;">Перевод</div>
+            <div class="hint">Нажми на карточку, чтобы увидеть перевод</div>
+        </div>
+        <div class="card-actions">
+            <button class="btn-main btn-outline" onclick="markCard(false)">🔄 Повторить</button>
+            <button class="btn-main btn-success" onclick="markCard(true)">✅ Знаю</button>
+        </div>
+    </div>
+
+    <div id="vocab" class="section"><div id="vocab-list"></div></div>
+const questions = [
+{ text: "She ___ to London last summer.", options: ["go", "went", "has gone"], correct: 1, explanation: "Есть маркер прошлого 'last summer' — нужен Past Simple." },
+{ text: "This book is ___ than the film.", options: ["interesting", "more interesting", "most interesting"], correct: 1, explanation: "Длинное прилагательное при сравнении (than) требует 'more'." },
+{ text: "I ___ my homework yet.", options: ["haven't finished", "didn't finish", "don't finish"], correct: 0, explanation: "Слово 'yet' (ещё не) указывает на Present Perfect." },
+{ text: "Look! The children ___ football in the yard.", options: ["play", "are playing", "played"], correct: 1, explanation: "Действие происходит прямо сейчас ('Look!') — Present Continuous." },
+{ text: "While I ___ dinner, my phone rang.", options: ["cooked", "was cooking", "am cooking"], correct: 1, explanation: "Длительное действие в прошлом (was cooking), прерванное коротким (rang)." },
+{ text: "When we arrived, the train ___.", options: ["already left", "had already left", "has already left"], correct: 1, explanation: "Действие случилось раньше другого действия в прошлом — Past Perfect." },
+{ text: "This bridge ___ in 1995.", options: ["built", "was built", "is built"], correct: 1, explanation: "Мост построили (страдательный залог в прошлом) — Past Simple Passive." },
+{ text: "English ___ in many countries.", options: ["speaks", "is spoken", "spoke"], correct: 1, explanation: "На английском говорят — Present Simple Passive (is + V3)." },
+{ text: "If the weather ___ fine tomorrow, we will go for a walk.", options: ["is", "will be", "was"], correct: 0, explanation: "В Conditional 1 после 'if' ставится Present Simple вместо будущего." },
+{ text: "If I ___ you, I wouldn't buy that phone.", options: ["am", "was", "were"], correct: 2, explanation: "В Conditional 2 для глагола to be используется 'were' для всех лиц." },
+{ text: "I wish I ___ more free time now.", options: ["have", "had", "will have"], correct: 1, explanation: "После 'I wish' для сожаления о настоящем ставится Past Simple." },
+{ text: "Tom said that he ___ busy the next day.", options: ["is", "will be", "would be"], correct: 2, explanation: "В косвенной речи (Tom said) 'will' меняется на 'would'." },
+{ text: "That was the ___ day of my life!", options: ["good", "better", "best"], correct: 2, explanation: "Превосходная степень от исключения 'good' — '(the) best'." },
+{ text: "You ___ wear a uniform at our school, it's a rule.", options: ["must", "can", "might"], correct: 0, explanation: "Строгое правило или обязанность передаётся глаголом 'must'." },
+{ text: "Today is Sunday, so I ___ get up early.", options: ["mustn't", "don't have to", "can't"], correct: 1, explanation: "'Don't have to' означает отсутствие необходимости (не нужно)." },
+{ text: "There are a lot of ___ in the park today.", options: ["child", "childs", "children"], correct: 2, explanation: "Множественное число от 'child' — исключение 'children'." },
+{ text: "How ___ money do you need?", options: ["many", "much", "few"], correct: 1, explanation: "Слово 'money' неисчисляемое, поэтому используем 'much'." },
+{ text: "My sister is proud of ___; she won.", options: ["her", "herself", "she"], correct: 1, explanation: "Гордится самой собой — возвратное местоимение 'herself'." },
+{ text: "He lives on the ___ floor.", options: ["five", "fiveth", "fifth"], correct: 2, explanation: "Порядковое числительное от five пишется 'fifth'." },
+{ text: "Look at those black clouds! It ___ rain soon.", options: ["will", "is going to", "goes to"], correct: 1, explanation: "Прогноз по очевидным признакам (тучи) — 'be going to'." }
+];
+const rulesData = [
+{ title: "1. Present Simple vs Present Continuous", body: "Present Simple — регулярные действия, привычки, расписание (always, usually, often, every day). Добавляем -s/-es для he/she/it.
+Пример: She goes to school every day.Present Continuous — действие прямо сейчас (now, at the moment, Look!). Формула: am/is/are + V-ing.
+Пример: Look! She is running now." },
+{ title: "2. Past Simple vs Past Continuous", body: "Past Simple — завершилось в прошлом в точное время (yesterday, in 2020, ago). Форма V2 / -ed.
+Пример: I watched this movie yesterday.Past Continuous — длилось в момент в прошлом (at 5 pm yesterday, when, while). Формула: was/were + V-ing.
+Пример: I was watching TV when you called." },
+{ title: "3. Present Perfect vs Past Perfect", body: "Present Perfect — важен результат сейчас, время не указано (already, just, yet, ever, never, since, for). Формула: have/has + V3.
+Пример: I have already watched this movie.Past Perfect — случилось раньше другого действия в прошлом (by 5 pm, before). Формула: had + V3.
+Пример: When I arrived, the train had already left." },
+{ title: "4. Future Simple vs to be going to", body: "Future Simple (will + V) — спонтанные решения, обещания, предсказания (tomorrow, next week, I think).
+Пример: It’s cold. I will close the window.To be going to + V — планы и намерения или прогноз по фактам.
+Пример: Look at those dark clouds! It is going to rain." },
+{ title: "5. Страдательный залог (Passive Voice)", body: "Действие совершается над предметом: to be + V3.
+• Present (am/is/are + V3): English is spoken everywhere.
+• Past (was/were + V3): This book was written in 1890.
+• Future (will be + V3): The work will be finished tomorrow." },
+{ title: "6. Условные предложения (Conditionals 0, 1, 2) и I wish", body: "Conditional 0 (факты): If + Present Simple, Present Simple. (If you heat ice, it melts.)
+Conditional 1 (реальное будущее): If + Present Simple, will + V. (If it rains, we will stay home.)
+Conditional 2 (нереальное настоящее): If + Past Simple (were для всех лиц), would + V. (If I were you, I would go.)
+I wish (сожаление): I wish + Past Simple. (I wish I knew French.)" },
+{ title: "7. Косвенная речь (Reported Speech)", body: "После said / told время сдвигается назад: Present Simple → Past Simple, Present Continuous → Past Continuous, Past Simple / Present Perfect → Past Perfect, will → would, can → could, must → had to.
+Слова-маркеры: now → then, today → that day, yesterday → the day before, tomorrow → the next day." },
+{ title: "8. Степени сравнения прилагательных", body: "Короткие: -er / the -est (fast → faster → the fastest).
+Длинные: more / the most (interesting → more interesting → the most interesting).
+Исключения ОГЭ: good → better → the best; bad → worse → the worst; little → less → the least; many/much → more → the most; far → farther/further → the farthest/furthest." },
+{ title: "9. Модальные глаголы", body: "Глагол после них идёт без to (кроме have to):
+• can / could — уметь, мочь;
+• must — должен; mustn't — строго запрещено;
+• have to — вынужден; don't have to — не обязательно;
+• should — следует (совет);
+• may / might — разрешение или вероятность." },
+{ title: "10. Существительные, местоимения и числительные", body: "Множ. число (исключения): man → men, woman → women, child → children, tooth → teeth, foot → feet, mouse → mice, person → people, sheep → sheep, deer → deer, fish → fish.
+Исчисляемые / неисчисляемые: many, few / much, little.
+Местоимения: some (утверждения), any (вопросы и отрицания); возвратные (myself, yourself, himself, herself, itself, ourselves, yourselves, themselves).
+Порядковые числительные: the first, the second, the third, the fifth, the twelfth, the twentieth." }
+];
+const rawVocab = [
+{
+topic: "Семья, друзья и взаимоотношения",
+items: [
+"Relative|Родственник","Generation|Поколение","Generation gap|Конфликт поколений","Ancestor|Предок","Descendant|Потомок","Sibling|Родной брат или сестра","Only child|Единственный ребёнок в семье","Twins|Близнецы","Nephew|Племянник","Niece|Племянница","Cousin|Двоюродный брат / сестра","Stepmother|Мачеха","Stepfather|Отчим","Mother-in-law|Тёща / свекровь","Father-in-law|Тесть / свёкор","Spouse|Супруг / супруга","Fiancé|Жених","Fiancée|Невеста","Bride|Невеста (на свадьбе)","Groom|Жених (на свадьбе)","Wedding|Свадьба","Marriage|Брак / замужество","To get married|Пожениться / выйти замуж","Divorce|Развод","To get divorced|Развестись","Single|Холостой / незамужняя","Widow|Вдова","Widower|Вдовец","Orphan|Сирота","To bring up|Воспитывать (детей)","Upbringing|Воспитание","To grow up|Расти / взрослеть","Childhood|Детство","Adolescence|Юность / подростковый возраст","Teenager|Подросток","Adult|Взрослый","Elderly|Пожилой","To take after|Быть похожим (на родственников)","To look like|Выглядеть похожим (внешне)","To get on well with|Хорошо ладить с","To fall out with|Поссориться с","To make up with|Помириться с","Argument|Ссора / спор","Misunderstanding|Недопонимание","To quarrel|Ссориться","To forgive|Прощать","To apologize|Извиняться","To trust|Доверять","Trustworthy|Заслуживающий доверия","Reliable|Надёжный","Loyal|Верный / преданный","Devoted|Преданный","To support|Поддерживать","Mutual respect|Взаимное уважение","To respect|Уважать","To care about|Заботиться о","Caring|Заботливый","Close friend|Близкий друг","Best friend|Лучший друг","Acquaintance|Знакомый","Classmate|Одноклассник","Peer|Сверстник / ровесник","Neighbour|Сосед","To make friends|Подружиться","Friendship|Дружба","To keep in touch|Поддерживать связь","To lose touch|Потерять связь","To have a lot in common|Иметь много общего","To share interests|Разделять интересы","Sense of humor|Чувство юмора","Kind-hearted|Добросердечный","Generous|Щедрый","Greedy|Жадный","Honest|Честный","Dishonest|Нечестный","Polite|Вежливый","Rude|Грубый","Sociable|Общительный","Outgoing|Открытый / дружелюбный","Shy|Застенчивый","Modest|Скромный","Arrogant|Высокомерный","Selfish|Эгоистичный","Selfless|Бескорыстный","Patient|Терпеливый","Impatient|Нетерпеливый","Stubborn|Упрямый","Easy-going|Лёгкий в общении","Moody|С переменчивым настроением","Cheerful|Жизнерадостный","Optimistic|Оптимистичный","Pessimistic|Пессимистичный","Hard-working|Трудолюбивый","Lazy|Ленивый","Responsible|Ответственный","Irresponsible|Безответственный","Independent|Независимый","Curious|Любознательный","Creative|Творческий","Ambitious|Амбициозный","Brave|Храбрый / смелый","Cowardly|Трусливый","Sensitive|Чувствительный","Sensible|Благоразумный","Strict|Строгий","Fair|Справедливый","Unfair|Несправедливый","Jealous|Ревнивый / завистливый","To envy|Завидовать","To admire|Восхищаться","Role model|Пример для подражания","Appearance|Внешность","Handsome|Красивый (о мужчине)","Pretty|Симпатичная","Attractive|Привлекательный","Good-looking|Приятной наружности","Slim|Стройный","Overweight|С лишним весом","Well-built|Хорошо сложенный","Of medium height|Среднего роста","Curly hair|Кудрявые волосы","Straight hair|Прямые волосы","Wavy hair|Волнистые волосы","Fair-haired|Светловолосый","Dark-haired|Темноволосый","Freckles|Веснушки","Beard|Борода","Moustache|Усы","Pale|Бледный","Tanned|Загорелый","Household chores|Домашние обязанности","To do the housework|Делать работу по дому","To tidy up|Убираться","To do the washing-up|Мыть посуду","To do the laundry|Стирать бельё","To vacuum|Пылесосить","To take out the rubbish|Выносить мусор","To water the plants|Поливать растения","To walk the dog|Выгуливать собаку","Pocket money|Карманные деньги","Allowance|Денежное содержание","To depend on|Зависеть от","To complain about|Жаловаться на","To criticize|Критиковать","To praise|Хвалить","To encourage|Поощрять","To blame|Винить","To betray|Предавать","To deceive|Обманывать","To lie|Лгать","To tell the truth|Говорить правду","To keep a secret|Хранить секрет","To rely on|Полагаться на","To let down|Подводить","To look after|Присматривать за","To split up|Расстаться","Relationship|Отношения","Family values|Семейные ценности","Family reunion|Семейный сбор","To celebrate together|Праздновать вместе"
+]
+},
+{
+topic: "Школа и образование",
+items: [
+"Education|Образование","Primary school|Начальная школа","Secondary school|Средняя школа","Boarding school|Школа-интернат","Private school|Частная школа","State school|Государственная школа","Nursery school|Детский сад","University|Университет","College|Колледж","Curriculum|Учебная программа","Timetable|Расписание уроков","Schedule|Расписание / график","Term|Четверть / семестр","Break|Перемена","Holiday|Каникулы / праздник","Subject|Школьный предмет","Compulsory|Обязательный","Optional|Факультативный","Mathematics (Maths)|Математика","Literature|Литература","Foreign language|Иностранный язык","Physics|Физика","Chemistry|Химия","Biology|Биология","Geography|География","History|История","Social Studies|Обществознание","Computer Science (IT)|Информатика","Physical Education (PE)|Физкультура","Art|ИЗО","Science|Естественные науки","Headteacher|Директор школы","Principal|Директор","Form teacher|Классный руководитель","Pupil|Ученик","Student|Студент / учащийся","Graduate|Выпускник","To graduate from|Окончить учебное заведение","To attend classes|Посещать занятия","Attendance|Посещаемость","To miss a lesson|Пропустить урок","To skip classes|Прогуливать уроки","To be late for|Опаздывать на","Absent|Отсутствующий","Present|Присутствующий","Mark / Grade|Оценка / отметка","Excellent|Отлично","Report card|Табель успеваемости","School diary|Школьный дневник","Homework|Домашнее задание","Assignment|Задание / поручение","To pass an exam|Сдать экзамен","To fail an exam|Провалить экзамен","To revise for|Повторять материал к"
+]
+},
+{
+topic: "Работа, карьера и деньги",
+items: [
+"To run a business|Вести бизнес","Contract|Контракт / договор","To sign a contract|Подписать контракт","Cooperation|Сотрудничество","To cooperate|Сотрудничать","Negotiations|Переговоры","Agreement|Соглашение","To earn money|Зарабатывать деньги","To spend money|Тратить деньги","To save money|Копить деньги","Salary / Wage|Зарплата","Career|Карьера","Profession / Occupation|Профессия","Employer|Работодатель","Employee|Сотрудник / работник","To apply for a job|Подавать заявление на работу","Job interview|Собеседование","Experience|Опыт","Skills|Навыки","Part-time job|Подработка","Full-time job|Работа на полный день"
+]
+},
+{
+topic: "Досуг, увлечения, спорт и ЗОЖ",
+items: [
+"Leisure / Spare time|Досуг / свободное время","Hobby / Pastime|Хобби / увлечение","To be keen on|Сильно увлекаться","To be fond of|Любить / увлекаться","To be interested in|Интересоваться","To take up a hobby|Начать новое хобби","To give up|Бросить (привычку)","Entertainment|Развлечение","To entertain|Развлекать","To relax / To unwind|Расслабляться / отдыхать","To hang out with friends|Проводить время с друзьями","To go out|Выходить в свет / гулять","Couch potato|Домосед / лежебока","Board games|Настольные игры","Chess|Шахматы","Jigsaw puzzle|Пазл","Knitting|Вязание","Sewing|Шитьё","Embroidery|Вышивание","Pottery|Гончарное дело","Painting|Живопись","Drawing|Рисование","Photography|Фотография","Gardening|Садоводство","Collecting stamps / coins|Коллекционирование марок / монет","Cooking / Baking|Кулинария / выпечка","Reading|Чтение","Fiction|Художественная литература","Non-fiction|Документальная литература","Detective story|Детектив","Science fiction (Sci-fi)|Научная фантастика","Adventure story|Приключенческий рассказ","Plot|Сюжет","Main character|Главный герой","Bestseller|Бестселлер","Exhibition|Выставка","Art gallery|Художественная галерея","Museum|Музей","Theatre|Театр","Performance|Спектакль / представление","Stage|Сцена","Audience|Зрители / публика","Applause|Аплодисменты","Cinema / Movie theater|Кинотеатр","Comedy|Комедия","Horror film|Фильм ужасов","Action movie|Боевик","Cartoon|Мультфильм","Documentary|Документальный фильм","Cast|Актёрский состав","Director|Режиссёр","Screen|Экран","Subtitles|Субтитры","Special effects|Спецэффекты","Concert|Концерт","Musical instrument|Музыкальный инструмент","To play the guitar / piano|Играть на гитаре / пианино","Band / Orchestra|Группа / оркестр","Lyrics|Текст песни","Catchy tune|Запоминающаяся мелодия","Healthy lifestyle|Здоровый образ жизни","To keep fit|Поддерживать форму","To work out|Тренироваться в зале","Physical exercise|Физические упражнения","Balanced diet|Сбалансированное питание","Junk food|Вредная еда / фастфуд","Vitamins|Витамины","Bad habits|Вредные привычки","Smoking|Курение","To get enough sleep|Высыпаться","Insomnia|Бессонница","Stress|Стресс","To avoid stress|Избегать стресса","Health|Здоровье","Healthy|Здоровый","Illness / Disease|Болезнь / заболевание","To catch a cold|Простудиться","Flu|Грипп","Fever / High temperature|Жар / температура","Headache|Головная боль","Toothache|Зубная боль","Stomachache|Боль в животе","Sore throat|Боль в горле","Cough|Кашель","Runny nose|Насморк","Injury|Травма","To hurt / To ache|Болеть","To recover|Выздоравливать","Treatment|Лечение","Medicine|Лекарство / медицина","Pill / Tablet|Таблетка","Prescription|Рецепт от врача","To examine a patient|Осматривать пациента","Ambulance|Скорая помощь","Hospital|Больница","Chemist's / Pharmacy|Аптека","First aid|Первая помощь","Sport|Спорт","Athlete / Sportsman|Спортсмен","Team sports|Командные виды спорта","Individual sports|Индивидуальные виды спорта","Extreme sports|Экстремальные виды спорта","Athletics|Лёгкая атлетика","Gymnastics|Гимнастика","Figure skating|Фигурное катание","Skiing|Лыжный спорт","Snowboarding|Сноубординг","Swimming|Плавание","Cycling|Велоспорт","Jogging|Бег трусцой","Wrestling|Борьба","Boxing|Бокс","Martial arts|Боевые искусства","Fencing|Фехтование","Weightlifting|Тяжёлая атлетика","Archery|Стрельба из лука","Coach / Trainer|Тренер","Referee / Umpire|Судья в спорте","Spectator / Fan|Зритель / болельщик","Team|Команда","Opponent / Rival|Соперник","Champion|Чемпион","Championship|Чемпионат","Tournament|Турнир","Competition / Contest|Соревнование","Olympic Games|Олимпийские игры","To compete|Соревноваться","To train / To practice|Тренироваться","To warm up|Разминаться","To win|Побеждать","Victory|Победа","To lose|Проигрывать","Defeat|Поражение","Draw / Tie|Ничья","Score|Счёт в игре","To score a goal / point|Забить гол / набрать очко","Record|Рекорд","To set a record|Установить рекорд"
+]
+}
+];
+function getItem(arr, idx) {
+return arr.slice(idx, idx + 1).pop();
+}
+const allWords = [];
+rawVocab.forEach((g, tIdx) => {
+g.items.forEach((str, wIdx) => {
+const parts = str.split('|');
+allWords.push({
+id: tIdx + '_' + wIdx,
+topic: g.topic,
+topicIndex: tIdx,
+en: getItem(parts, 0),
+ru: getItem(parts, 1)
+});
+});
+});
+const validWordIds = new Set(allWords.map(w => w.id));
+let solvedQuestions = JSON.parse(localStorage.getItem('oge_solved_q') || '[]').filter(idx => idx >= 0 && idx < questions.length);
+let learnedWords = JSON.parse(localStorage.getItem('oge_learned_w') || '[]').filter(id => validWordIds.has(id));
+let currentQuestionIndex = 0;
+let questionAnswered = false;
+let filteredCards = [...allWords];
+let currentCardIndex = 0;
+function showTab(tabId, btn) {
+document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+document.getElementById(tabId).classList.add('active');
+btn.classList.add('active');
+if (tabId === 'vocab') renderVocabList();
+}
+function resetProgress() {
+if (!confirm('Точно сбросить весь прогресс по грамматике и словам?')) return;
+solvedQuestions = [];
+learnedWords = [];
+localStorage.removeItem('oge_solved_q');
+localStorage.removeItem('oge_learned_w');
+updateHeaderProgress();
+loadQuestion();
+showCard();
+if (document.getElementById('vocab').classList.contains('active')) renderVocabList();
+}
+function updateHeaderProgress() {
+const qTotal = questions.length;
+const qSolved = solvedQuestions.length;
+const qPercent = qTotal > 0 ? Math.round((qSolved / qTotal) * 100) : 0;
+document.getElementById('progress-text').textContent = 'Грамматика: ' + qPercent + '%';
+document.getElementById('score-text').textContent = 'Верно: ' + qSolved + ' из ' + qTotal;
+document.getElementById('progress-bar').style.width = qPercent + '%';
+const wTotal = allWords.length;
+const wLearned = learnedWords.length;
+const wPercent = wTotal > 0 ? Math.round((wLearned / wTotal) * 100) : 0;
+document.getElementById('words-progress-text').textContent = 'Словарь: ' + wPercent + '%';
+document.getElementById('words-score-text').textContent = 'Выучено: ' + wLearned + ' из ' + wTotal;
+document.getElementById('words-progress-bar').style.width = wPercent + '%';
+}
+function loadQuestion() {
+questionAnswered = false;
+const q = getItem(questions, currentQuestionIndex);
+document.getElementById('q-meta').textContent = 'Вопрос ' + (currentQuestionIndex + 1) + ' из ' + questions.length;
+document.getElementById('q-text').textContent = q.text;
+document.getElementById('q-feedback').textContent = '';
+document.getElementById('next-btn').style.display = 'none';
+const optionsDiv = document.getElementById('q-options');
+optionsDiv.innerHTML = '';
+q.options.forEach((opt, idx) => {
+const btn = document.createElement('button');
+btn.className = 'option-btn';
+btn.textContent = opt;
+btn.onclick = () => checkAnswer(idx, btn);
+optionsDiv.appendChild(btn);
+});
+}
+function checkAnswer(selectedIndex, btn) {
+if (questionAnswered) return;
+questionAnswered = true;
+const q = getItem(questions, currentQuestionIndex);
+const buttons = document.querySelectorAll('.option-btn');
+buttons.forEach(b => b.disabled = true);
+const feedback = document.getElementById('q-feedback');
+if (selectedIndex === q.correct) {
+btn.classList.add('correct');
+feedback.style.color = '#065f46';
+feedback.textContent = 'Верно! ' + q.explanation;
+if (!solvedQuestions.includes(currentQuestionIndex)) {
+solvedQuestions.push(currentQuestionIndex);
+localStorage.setItem('oge_solved_q', JSON.stringify(solvedQuestions));
+updateHeaderProgress();
+}
+} else {
+btn.classList.add('wrong');
+const rightBtn = buttons.item(q.correct);
+if (rightBtn) rightBtn.classList.add('correct');
+feedback.style.color = '#991b1b';
+feedback.textContent = 'Ошибка. Правильный ответ: "' + getItem(q.options, q.correct) + '". ' + q.explanation;
+}
+document.getElementById('next-btn').style.display = 'inline-block';
+}
+function nextQuestion() {
+currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
+loadQuestion();
+}
+function initTopicFilter() {
+const select = document.getElementById('card-topic-filter');
+rawVocab.forEach((g, idx) => {
+const opt = document.createElement('option');
+opt.value = idx;
+opt.textContent = g.topic + ' (' + g.items.length + ' слов)';
+select.appendChild(opt);
+});
+}
+function changeCardTopic() {
+const val = document.getElementById('card-topic-filter').value;
+filteredCards = val === 'all' ? [...allWords] : allWords.filter(w => w.topicIndex === parseInt(val, 10));
+currentCardIndex = 0;
+showCard();
+}
+function showCard() {
+if (!filteredCards.length) return;
+const word = getItem(filteredCards, currentCardIndex);
+document.getElementById('card-topic').textContent = word.topic;
+document.getElementById('card-en').textContent = word.en;
+document.getElementById('card-ru').textContent = word.ru;
+document.getElementById('card-ru').style.display = 'none';
+const badge = document.getElementById('card-status-badge');
+if (learnedWords.includes(word.id)) {
+badge.textContent = '✅ Выучено';
+badge.classList.add('learned');
+} else {
+badge.textContent = 'Изучается';
+badge.classList.remove('learned');
+}
+}
+function flipCard() {
+const ru = document.getElementById('card-ru');
+ru.style.display = ru.style.display === 'none' ? 'block' : 'none';
+}
+function markCard(isLearned) {
+if (!filteredCards.length) return;
+const word = getItem(filteredCards, currentCardIndex);
+if (isLearned) {
+if (!learnedWords.includes(word.id)) learnedWords.push(word.id);
+} else {
+learnedWords = learnedWords.filter(id => id !== word.id);
+}
+localStorage.setItem('oge_learned_w', JSON.stringify(learnedWords));
+updateHeaderProgress();
+currentCardIndex = (currentCardIndex + 1) % filteredCards.length;
+showCard();
+}
+function renderVocabList() {
+const container = document.getElementById('vocab-list');
+container.innerHTML = '';
+rawVocab.forEach((g, tIdx) => {
+const learnedInTopic = g.items.filter((, wIdx) => learnedWords.includes(tIdx + '' + wIdx)).length;
+const acc = document.createElement('div');
+acc.className = 'topic-accordion';
+const header = document.createElement('div');
+header.className = 'topic-header';
+header.innerHTML = '' + g.topic + 'Выучено: ' + learnedInTopic + ' из ' + g.items.length + '▼';
+const body = document.createElement('div');
+body.className = 'topic-body';
+header.onclick = () => body.classList.toggle('open');
+g.items.forEach((str, wIdx) => {
+const parts = str.split('|');
+const wordId = tIdx + '_' + wIdx;
+const isDone = learnedWords.includes(wordId);
+const row = document.createElement('div');
+row.className = 'word-row';
+row.innerHTML = '' + getItem(parts, 0) + '' + getItem(parts, 1) + '';
+const btn = document.createElement('button');
+btn.className = 'status-toggle' + (isDone ? ' learned' : '');
+btn.textContent = isDone ? '✅ Выучено' : 'Отметить';
+btn.onclick = () => {
+if (learnedWords.includes(wordId)) {
+learnedWords = learnedWords.filter(id => id !== wordId);
+} else {
+learnedWords.push(wordId);
+}
+localStorage.setItem('oge_learned_w', JSON.stringify(learnedWords));
+updateHeaderProgress();
+renderVocabList();
+showCard();
+};
+row.appendChild(btn);
+body.appendChild(row);
+});
+acc.appendChild(header);
+acc.appendChild(body);
+container.appendChild(acc);
+});
+}
+function renderRules() {
+const container = document.getElementById('rules-list');
+rulesData.forEach(r => {
+const card = document.createElement('div');
+card.className = 'card rule-card';
+card.innerHTML = '' + r.title + '' + r.body;
+container.appendChild(card);
+});
+}
+initTopicFilter();
+renderRules();
+updateHeaderProgress();
+loadQuestion();
+showCard();
